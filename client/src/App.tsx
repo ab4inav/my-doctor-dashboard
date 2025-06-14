@@ -20,7 +20,6 @@ function Navigation() {
   const navItems = [
     { path: "/", icon: BarChart3, label: "Dashboard" },
     { path: "/patients", icon: Users, label: "Patients" },
-    { path: "/appointments", icon: Calendar, label: "Appointments" },
     { path: "/prescriptions", icon: FileText, label: "Prescriptions" },
     { path: "/invoices", icon: DollarSign, label: "Invoices" },
   ];

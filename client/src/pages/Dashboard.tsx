@@ -19,7 +19,6 @@ export default function Dashboard() {
 
   const stats = {
     totalPatients: patients.length,
-    todayAppointments: 8, // This would come from appointments data
     pendingPrescriptions: 3, // This would come from prescriptions data
     monthlyRevenue: 12450, // This would come from invoices data
   };
@@ -40,7 +39,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <Card className="bg-white shadow-sm border border-medical-gray-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -57,21 +56,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white shadow-sm border border-medical-gray-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-medical-gray-600 text-sm font-medium">Today's Appointments</p>
-                <p className="text-2xl font-bold text-medical-gray-800 mt-1">
-                  {stats.todayAppointments}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-medical-green/10 rounded-lg flex items-center justify-center">
-                <Calendar className="text-medical-green text-xl" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <Card className="bg-white shadow-sm border border-medical-gray-200">
           <CardContent className="p-6">
@@ -159,20 +143,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white shadow-sm border border-medical-gray-200">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-medical-gray-800 mb-4">Today's Schedule</h3>
-            <div className="space-y-4">
-              <div className="text-center py-8">
-                <Calendar className="mx-auto h-12 w-12 text-medical-gray-400" />
-                <p className="text-medical-gray-600 mt-2">No appointments scheduled</p>
-                <p className="text-sm text-medical-gray-500 mt-1">
-                  Appointment scheduling coming soon
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
       </div>
     </div>
   );
