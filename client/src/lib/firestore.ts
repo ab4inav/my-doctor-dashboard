@@ -98,33 +98,43 @@ export async function createPatient(data: InsertPatient): Promise<Patient> {
 }
 
 export async function getPatientsByDoctor(doctorId: string): Promise<Patient[]> {
-  const q = query(
-    collection(db, "patients"), 
-    where("doctorId", "==", doctorId),
-    orderBy("createdAt", "desc")
-  );
-  const querySnapshot = await getDocs(q);
-  
-  return querySnapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      age: data.age,
-      gender: data.gender,
-      bloodType: data.bloodType,
-      phoneNumber: data.phoneNumber,
-      email: data.email,
-      address: data.address,
-      emergencyContactName: data.emergencyContactName,
-      emergencyContactPhone: data.emergencyContactPhone,
-      medicalHistory: data.medicalHistory,
-      doctorId: data.doctorId,
-      createdAt: (data.createdAt as Timestamp).toDate(),
-      updatedAt: (data.updatedAt as Timestamp).toDate(),
-    };
-  });
+  try {
+    // Simple query without orderBy to avoid index requirements
+    const q = query(
+      collection(db, "patients"), 
+      where("doctorId", "==", doctorId)
+    );
+    const querySnapshot = await getDocs(q);
+    
+    const patients = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        age: data.age,
+        gender: data.gender,
+        bloodType: data.bloodType,
+        phoneNumber: data.phoneNumber,
+        email: data.email,
+        address: data.address,
+        emergencyContactName: data.emergencyContactName,
+        emergencyContactPhone: data.emergencyContactPhone,
+        medicalHistory: data.medicalHistory,
+        allergies: data.allergies,
+        currentMedications: data.currentMedications,
+        doctorId: data.doctorId,
+        createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
+        updatedAt: data.updatedAt ? (data.updatedAt as Timestamp).toDate() : new Date(),
+      };
+    });
+    
+    // Sort by createdAt in memory instead of using Firestore orderBy
+    return patients.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  } catch (error) {
+    console.error("Error fetching patients:", error);
+    return [];
+  }
 }
 
 export async function getPatient(id: string): Promise<Patient | null> {

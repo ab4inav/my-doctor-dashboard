@@ -18,11 +18,16 @@ export default function Patients() {
   const { doctor } = useAuth();
   const [, navigate] = useLocation();
 
-  const { data: patients = [], refetch } = useQuery({
+  const { data: patients = [], refetch, isLoading, error } = useQuery({
     queryKey: ["patients", doctor?.id],
     queryFn: () => doctor ? getPatientsByDoctor(doctor.id) : Promise.resolve([]),
     enabled: !!doctor,
   });
+
+  // Debug logging
+  console.log("Doctor ID:", doctor?.id);
+  console.log("Patients count:", patients.length);
+  console.log("Query error:", error);
 
   const filteredPatients = patients.filter((patient) => {
     const matchesSearch = 
