@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AddConsultationModal } from "@/components/modals/AddConsultationModal";
 import { CreatePrescriptionModal } from "@/components/modals/CreatePrescriptionModal";
 import { CreateInvoiceModal } from "@/components/modals/CreateInvoiceModal";
+import { EditPatientModal } from "@/components/modals/EditPatientModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   getPatient, 
@@ -28,6 +29,7 @@ export default function PatientProfile() {
   const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showEditPatientModal, setShowEditPatientModal] = useState(false);
 
   const { data: patient } = useQuery({
     queryKey: ["patient", patientId],
@@ -353,17 +355,17 @@ export default function PatientProfile() {
                         <div className="border-t border-medical-gray-200 pt-3 mt-3">
                           <div className="flex justify-between items-center">
                             <span className="text-medical-gray-600">Subtotal:</span>
-                            <span className="font-medium text-medical-gray-800">${invoice.subtotal.toFixed(2)}</span>
+                            <span className="font-medium text-medical-gray-800">Rs. {invoice.subtotal.toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-medical-gray-600">
                               Tax ({(invoice.taxRate * 100).toFixed(1)}%):
                             </span>
-                            <span className="font-medium text-medical-gray-800">${invoice.taxAmount.toFixed(2)}</span>
+                            <span className="font-medium text-medical-gray-800">Rs. {invoice.taxAmount.toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between items-center text-lg font-semibold text-medical-gray-800 border-t border-medical-gray-200 pt-2 mt-2">
                             <span>Total:</span>
-                            <span>${invoice.total.toFixed(2)}</span>
+                            <span>Rs. {invoice.total.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
