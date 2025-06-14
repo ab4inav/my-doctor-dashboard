@@ -344,8 +344,8 @@ export default function PatientProfile() {
                               <p className="text-sm text-medical-gray-600">Qty: {item.quantity}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm text-medical-gray-600">Unit: ${item.unitPrice.toFixed(2)}</p>
-                              <p className="font-medium text-medical-gray-800">${item.total.toFixed(2)}</p>
+                              <p className="text-sm text-medical-gray-600">Unit: Rs. {item.unitPrice.toFixed(2)}</p>
+                              <p className="font-medium text-medical-gray-800">Rs. {item.total.toFixed(2)}</p>
                             </div>
                           </div>
                         ))}

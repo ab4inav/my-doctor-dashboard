@@ -255,26 +255,33 @@ export async function createPrescription(data: InsertPrescription): Promise<Pres
 }
 
 export async function getPrescriptionsByPatient(patientId: string): Promise<Prescription[]> {
-  const q = query(
-    collection(db, "prescriptions"), 
-    where("patientId", "==", patientId),
-    orderBy("date", "desc")
-  );
-  const querySnapshot = await getDocs(q);
-  
-  return querySnapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      patientId: data.patientId,
-      doctorId: data.doctorId,
-      prescriptionNumber: data.prescriptionNumber,
-      medications: data.medications,
-      date: (data.date as Timestamp).toDate(),
-      createdAt: (data.createdAt as Timestamp).toDate(),
-      updatedAt: (data.updatedAt as Timestamp).toDate(),
-    };
-  });
+  try {
+    const q = query(
+      collection(db, "prescriptions"), 
+      where("patientId", "==", patientId)
+    );
+    const querySnapshot = await getDocs(q);
+    
+    const prescriptions = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        patientId: data.patientId,
+        doctorId: data.doctorId,
+        prescriptionNumber: data.prescriptionNumber,
+        medications: data.medications,
+        date: (data.date as Timestamp).toDate(),
+        createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
+        updatedAt: data.updatedAt ? (data.updatedAt as Timestamp).toDate() : new Date(),
+      };
+    });
+    
+    // Sort by date in memory instead of using Firestore orderBy
+    return prescriptions.sort((a, b) => b.date.getTime() - a.date.getTime());
+  } catch (error) {
+    console.error("Error fetching prescriptions:", error);
+    return [];
+  }
 }
 
 // Invoice functions
@@ -309,31 +316,38 @@ export async function createInvoice(data: InsertInvoice): Promise<Invoice> {
 }
 
 export async function getInvoicesByPatient(patientId: string): Promise<Invoice[]> {
-  const q = query(
-    collection(db, "invoices"), 
-    where("patientId", "==", patientId),
-    orderBy("date", "desc")
-  );
-  const querySnapshot = await getDocs(q);
-  
-  return querySnapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      patientId: data.patientId,
-      doctorId: data.doctorId,
-      invoiceNumber: data.invoiceNumber,
-      items: data.items,
-      subtotal: data.subtotal,
-      taxRate: data.taxRate,
-      taxAmount: data.taxAmount,
-      total: data.total,
-      status: data.status,
-      date: (data.date as Timestamp).toDate(),
-      createdAt: (data.createdAt as Timestamp).toDate(),
-      updatedAt: (data.updatedAt as Timestamp).toDate(),
-    };
-  });
+  try {
+    const q = query(
+      collection(db, "invoices"), 
+      where("patientId", "==", patientId)
+    );
+    const querySnapshot = await getDocs(q);
+    
+    const invoices = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        patientId: data.patientId,
+        doctorId: data.doctorId,
+        invoiceNumber: data.invoiceNumber,
+        items: data.items,
+        subtotal: data.subtotal,
+        taxRate: data.taxRate,
+        taxAmount: data.taxAmount,
+        total: data.total,
+        status: data.status,
+        date: (data.date as Timestamp).toDate(),
+        createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
+        updatedAt: data.updatedAt ? (data.updatedAt as Timestamp).toDate() : new Date(),
+      };
+    });
+    
+    // Sort by date in memory instead of using Firestore orderBy
+    return invoices.sort((a, b) => b.date.getTime() - a.date.getTime());
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    return [];
+  }
 }
 
 export async function updateInvoiceStatus(id: string, status: "pending" | "paid" | "overdue"): Promise<void> {
