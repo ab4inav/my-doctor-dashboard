@@ -41,10 +41,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (user) {
         try {
           const doctorData = await getDoctorByUid(user.uid);
-          setDoctor(doctorData);
+          if (doctorData) {
+            setDoctor(doctorData);
+          } else {
+            // Create a temporary doctor profile for immediate use
+            setDoctor({
+              id: user.uid,
+              uid: user.uid,
+              firstName: user.displayName?.split(' ')[0] || 'Doctor',
+              lastName: user.displayName?.split(' ')[1] || 'User',
+              email: user.email!,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+          }
         } catch (error) {
           console.error("Error fetching doctor data:", error);
-          setDoctor(null);
+          // Set temporary doctor profile when Firestore isn't accessible
+          setDoctor({
+            id: user.uid,
+            uid: user.uid,
+            firstName: user.displayName?.split(' ')[0] || 'Doctor',
+            lastName: user.displayName?.split(' ')[1] || 'User',
+            email: user.email!,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
         }
       } else {
         setDoctor(null);
@@ -65,12 +87,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const user = userCredential.user;
     
     // Create doctor profile
-    await createDoctor({
-      uid: user.uid,
-      firstName,
-      lastName,
-      email: user.email!,
-    });
+    try {
+      const doctorData = await createDoctor({
+        uid: user.uid,
+        firstName,
+        lastName,
+        email: user.email!,
+      });
+      setDoctor(doctorData);
+    } catch (error) {
+      console.error("Error creating doctor profile:", error);
+      // Set a temporary doctor object for immediate use
+      setDoctor({
+        id: user.uid,
+        uid: user.uid,
+        firstName,
+        lastName,
+        email: user.email!,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
   };
 
   const logout = async () => {

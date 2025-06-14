@@ -75,19 +75,26 @@ export async function getDoctorByUid(uid: string): Promise<Doctor | null> {
 
 // Patient functions
 export async function createPatient(data: InsertPatient): Promise<Patient> {
-  const docRef = await addDoc(collection(db, "patients"), {
-    ...data,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
-  
-  const patientDoc = await getDoc(docRef);
-  return {
-    id: docRef.id,
-    ...data,
-    createdAt: (patientDoc.data()?.createdAt as Timestamp).toDate(),
-    updatedAt: (patientDoc.data()?.updatedAt as Timestamp).toDate(),
-  };
+  try {
+    const docRef = await addDoc(collection(db, "patients"), {
+      ...data,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    
+    const patientDoc = await getDoc(docRef);
+    const docData = patientDoc.data();
+    
+    return {
+      id: docRef.id,
+      ...data,
+      createdAt: docData?.createdAt ? (docData.createdAt as Timestamp).toDate() : new Date(),
+      updatedAt: docData?.updatedAt ? (docData.updatedAt as Timestamp).toDate() : new Date(),
+    };
+  } catch (error) {
+    console.error("Firestore create patient error:", error);
+    throw new Error("Failed to create patient. Please ensure Firestore is properly configured with correct security rules.");
+  }
 }
 
 export async function getPatientsByDoctor(doctorId: string): Promise<Patient[]> {
