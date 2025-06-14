@@ -28,39 +28,49 @@ import type {
 
 // Doctor functions
 export async function createDoctor(data: InsertDoctor): Promise<Doctor> {
-  const docRef = await addDoc(collection(db, "doctors"), {
-    ...data,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
-  
-  const doctorDoc = await getDoc(docRef);
-  return {
-    id: docRef.id,
-    ...data,
-    createdAt: (doctorDoc.data()?.createdAt as Timestamp).toDate(),
-    updatedAt: (doctorDoc.data()?.updatedAt as Timestamp).toDate(),
-  };
+  try {
+    const docRef = await addDoc(collection(db, "doctors"), {
+      ...data,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    
+    const doctorDoc = await getDoc(docRef);
+    return {
+      id: docRef.id,
+      ...data,
+      createdAt: (doctorDoc.data()?.createdAt as Timestamp).toDate(),
+      updatedAt: (doctorDoc.data()?.updatedAt as Timestamp).toDate(),
+    };
+  } catch (error) {
+    console.error("Error creating doctor:", error);
+    throw new Error("Failed to create doctor profile. Please ensure Firestore is enabled in Firebase Console.");
+  }
 }
 
 export async function getDoctorByUid(uid: string): Promise<Doctor | null> {
-  const q = query(collection(db, "doctors"), where("uid", "==", uid));
-  const querySnapshot = await getDocs(q);
-  
-  if (querySnapshot.empty) return null;
-  
-  const doc = querySnapshot.docs[0];
-  const data = doc.data();
-  
-  return {
-    id: doc.id,
-    uid: data.uid,
-    firstName: data.firstName,
-    lastName: data.lastName,
-    email: data.email,
-    createdAt: (data.createdAt as Timestamp).toDate(),
-    updatedAt: (data.updatedAt as Timestamp).toDate(),
-  };
+  try {
+    const q = query(collection(db, "doctors"), where("uid", "==", uid));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) return null;
+    
+    const doc = querySnapshot.docs[0];
+    const data = doc.data();
+    
+    return {
+      id: doc.id,
+      uid: data.uid,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      createdAt: (data.createdAt as Timestamp).toDate(),
+      updatedAt: (data.updatedAt as Timestamp).toDate(),
+    };
+  } catch (error) {
+    console.error("Firestore access error:", error);
+    return null;
+  }
 }
 
 // Patient functions

@@ -42,7 +42,14 @@ export function AddPatientModal({ open, onClose, onPatientAdded }: AddPatientMod
   });
 
   const onSubmit = async (data: InsertPatient) => {
-    if (!doctor) return;
+    if (!doctor) {
+      toast({
+        title: "Authentication Error",
+        description: "Please ensure you're logged in and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -63,7 +70,7 @@ export function AddPatientModal({ open, onClose, onPatientAdded }: AddPatientMod
       console.error("Error adding patient:", error);
       toast({
         title: "Error",
-        description: "Failed to add patient. Please try again.",
+        description: "Failed to add patient. Please ensure Firestore is enabled in Firebase Console.",
         variant: "destructive",
       });
     } finally {
