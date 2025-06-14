@@ -173,43 +173,57 @@ export async function updatePatient(id: string, data: Partial<InsertPatient>): P
 
 // Consultation Notes functions
 export async function createConsultationNote(data: InsertConsultationNote): Promise<ConsultationNote> {
-  const docRef = await addDoc(collection(db, "consultationNotes"), {
-    ...data,
-    date: Timestamp.fromDate(data.date),
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
-  
-  const noteDoc = await getDoc(docRef);
-  return {
-    id: docRef.id,
-    ...data,
-    createdAt: (noteDoc.data()?.createdAt as Timestamp).toDate(),
-    updatedAt: (noteDoc.data()?.updatedAt as Timestamp).toDate(),
-  };
+  try {
+    const docRef = await addDoc(collection(db, "consultationNotes"), {
+      ...data,
+      date: Timestamp.fromDate(data.date),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    
+    const noteDoc = await getDoc(docRef);
+    const docData = noteDoc.data();
+    
+    return {
+      id: docRef.id,
+      ...data,
+      createdAt: docData?.createdAt ? (docData.createdAt as Timestamp).toDate() : new Date(),
+      updatedAt: docData?.updatedAt ? (docData.updatedAt as Timestamp).toDate() : new Date(),
+    };
+  } catch (error) {
+    console.error("Error creating consultation note:", error);
+    throw new Error("Failed to create consultation note. Please ensure Firestore is properly configured.");
+  }
 }
 
 export async function getConsultationNotesByPatient(patientId: string): Promise<ConsultationNote[]> {
-  const q = query(
-    collection(db, "consultationNotes"), 
-    where("patientId", "==", patientId),
-    orderBy("date", "desc")
-  );
-  const querySnapshot = await getDocs(q);
-  
-  return querySnapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      patientId: data.patientId,
-      doctorId: data.doctorId,
-      title: data.title,
-      content: data.content,
-      date: (data.date as Timestamp).toDate(),
-      createdAt: (data.createdAt as Timestamp).toDate(),
-      updatedAt: (data.updatedAt as Timestamp).toDate(),
-    };
-  });
+  try {
+    const q = query(
+      collection(db, "consultationNotes"), 
+      where("patientId", "==", patientId)
+    );
+    const querySnapshot = await getDocs(q);
+    
+    const notes = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        patientId: data.patientId,
+        doctorId: data.doctorId,
+        title: data.title,
+        content: data.content,
+        date: (data.date as Timestamp).toDate(),
+        createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
+        updatedAt: data.updatedAt ? (data.updatedAt as Timestamp).toDate() : new Date(),
+      };
+    });
+    
+    // Sort by date in memory instead of using Firestore orderBy
+    return notes.sort((a, b) => b.date.getTime() - a.date.getTime());
+  } catch (error) {
+    console.error("Error fetching consultation notes:", error);
+    return [];
+  }
 }
 
 // Prescription functions

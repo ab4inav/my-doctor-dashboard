@@ -41,10 +41,24 @@ export function AddConsultationModal({
   });
 
   const onSubmit = async (data: InsertConsultationNote) => {
-    if (!doctor) return;
+    if (!doctor) {
+      toast({
+        title: "Authentication Error",
+        description: "Please ensure you're logged in and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsSubmitting(true);
     try {
+      console.log("Creating consultation note with data:", {
+        ...data,
+        content,
+        patientId,
+        doctorId: doctor.id,
+      });
+      
       await createConsultationNote({
         ...data,
         content,
@@ -65,7 +79,7 @@ export function AddConsultationModal({
       console.error("Error adding consultation note:", error);
       toast({
         title: "Error",
-        description: "Failed to add consultation note. Please try again.",
+        description: "Failed to add consultation note. Please ensure Firestore is properly configured.",
         variant: "destructive",
       });
     } finally {
