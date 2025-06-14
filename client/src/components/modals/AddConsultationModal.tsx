@@ -30,21 +30,16 @@ export function AddConsultationModal({
   const { toast } = useToast();
 
   const form = useForm<InsertConsultationNote>({
-    resolver: zodResolver(insertConsultationNoteSchema),
+    resolver: zodResolver(insertConsultationNoteSchema.omit({ content: true })),
     defaultValues: {
       patientId,
       doctorId: doctor?.id || "",
       title: "",
-      content: "",
       date: new Date(),
     },
   });
 
-  const onSubmit = async (data: InsertConsultationNote) => {
-    console.log("onSubmit called with:", data);
-    console.log("Content state:", content);
-    console.log("Doctor:", doctor);
-    
+  const onSubmit = async (data: any) => {
     if (!doctor) {
       toast({
         title: "Authentication Error",
@@ -65,13 +60,6 @@ export function AddConsultationModal({
 
     setIsSubmitting(true);
     try {
-      console.log("Creating consultation note with data:", {
-        ...data,
-        content,
-        patientId,
-        doctorId: doctor.id,
-      });
-      
       await createConsultationNote({
         ...data,
         content,

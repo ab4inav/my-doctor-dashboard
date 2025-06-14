@@ -117,8 +117,12 @@ The application uses Firebase Authentication for user management with a hybrid a
 
 ## Changelog
 
-Changelog:
-- June 14, 2025. Initial setup
+Recent Changes:
+- June 14, 2025: Fixed consultation notes creation - resolved form validation conflicts with rich text editor
+- June 14, 2025: Fixed patient list display - removed Firestore orderBy requirements causing failed-precondition errors
+- June 14, 2025: Enhanced authentication handling with fallback doctor profiles for immediate functionality
+- June 14, 2025: Added comprehensive error handling across all Firestore operations
+- June 14, 2025: Initial setup
 
 ## User Preferences
 

@@ -228,23 +228,30 @@ export async function getConsultationNotesByPatient(patientId: string): Promise<
 
 // Prescription functions
 export async function createPrescription(data: InsertPrescription): Promise<Prescription> {
-  const prescriptionNumber = `RX${Date.now()}`;
-  const docRef = await addDoc(collection(db, "prescriptions"), {
-    ...data,
-    prescriptionNumber,
-    date: Timestamp.fromDate(data.date),
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
-  
-  const prescriptionDoc = await getDoc(docRef);
-  return {
-    id: docRef.id,
-    prescriptionNumber,
-    ...data,
-    createdAt: (prescriptionDoc.data()?.createdAt as Timestamp).toDate(),
-    updatedAt: (prescriptionDoc.data()?.updatedAt as Timestamp).toDate(),
-  };
+  try {
+    const prescriptionNumber = `RX${Date.now()}`;
+    const docRef = await addDoc(collection(db, "prescriptions"), {
+      ...data,
+      prescriptionNumber,
+      date: Timestamp.fromDate(data.date),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    
+    const prescriptionDoc = await getDoc(docRef);
+    const docData = prescriptionDoc.data();
+    
+    return {
+      id: docRef.id,
+      prescriptionNumber,
+      ...data,
+      createdAt: docData?.createdAt ? (docData.createdAt as Timestamp).toDate() : new Date(),
+      updatedAt: docData?.updatedAt ? (docData.updatedAt as Timestamp).toDate() : new Date(),
+    };
+  } catch (error) {
+    console.error("Error creating prescription:", error);
+    throw new Error("Failed to create prescription. Please ensure Firestore is properly configured.");
+  }
 }
 
 export async function getPrescriptionsByPatient(patientId: string): Promise<Prescription[]> {
