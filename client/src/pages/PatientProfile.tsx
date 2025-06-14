@@ -31,7 +31,7 @@ export default function PatientProfile() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [showEditPatientModal, setShowEditPatientModal] = useState(false);
 
-  const { data: patient } = useQuery({
+  const { data: patient, refetch: refetchPatient } = useQuery({
     queryKey: ["patient", patientId],
     queryFn: () => getPatient(patientId),
     enabled: !!patientId,
