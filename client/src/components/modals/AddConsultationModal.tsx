@@ -41,10 +41,23 @@ export function AddConsultationModal({
   });
 
   const onSubmit = async (data: InsertConsultationNote) => {
+    console.log("onSubmit called with:", data);
+    console.log("Content state:", content);
+    console.log("Doctor:", doctor);
+    
     if (!doctor) {
       toast({
         title: "Authentication Error",
         description: "Please ensure you're logged in and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!content.trim()) {
+      toast({
+        title: "Content Required",
+        description: "Please add some content to the consultation note.",
         variant: "destructive",
       });
       return;
@@ -96,7 +109,7 @@ export function AddConsultationModal({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit, (errors) => console.log("Form validation errors:", errors))} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <Label htmlFor="title">Title *</Label>
@@ -148,8 +161,9 @@ export function AddConsultationModal({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !content}
+              disabled={isSubmitting}
               className="bg-medical-blue hover:bg-blue-700"
+              onClick={() => console.log("Button clicked, content:", content, "content length:", content.length)}
             >
               {isSubmitting ? "Adding..." : "Add Note"}
             </Button>
