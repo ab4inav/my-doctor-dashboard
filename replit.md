@@ -18,11 +18,10 @@ MediPractice is a comprehensive medical practice management system built for hea
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework
 - **Language**: TypeScript with ES modules
-- **Database**: PostgreSQL with Neon serverless hosting
-- **ORM**: Drizzle ORM for type-safe database operations
+- **Database**: Firebase Firestore for NoSQL document storage
 - **Authentication**: Firebase Authentication
-- **Data Storage**: Firestore for real-time data synchronization
-- **API Design**: RESTful APIs with standardized error handling
+- **Data Storage**: Firestore for real-time data synchronization and offline support
+- **API Design**: Direct Firebase SDK integration for optimal performance
 
 ### Authentication Strategy
 The application uses Firebase Authentication for user management with a hybrid approach:
