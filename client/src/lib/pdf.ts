@@ -4,13 +4,13 @@ import type { Prescription, Invoice, Patient, Doctor, ConsultationNote } from "@
 // Helper function to add logo and header to PDF
 const addLogoAndHeader = (doc: jsPDF, title: string) => {
   // Header background
-  doc.setFillColor(0, 102, 204); // Medical blue
+  doc.setFillColor(34, 197, 94); // Medical green
   doc.rect(0, 0, doc.internal.pageSize.width, 35, 'F');
   
   // Company logo/icon (simplified medical cross)
   doc.setFillColor(255, 255, 255);
   doc.circle(25, 17.5, 8);
-  doc.setFillColor(0, 102, 204);
+  doc.setFillColor(34, 197, 94);
   doc.rect(21, 12, 8, 11);
   doc.rect(17, 16, 16, 3);
   
@@ -41,7 +41,7 @@ const addFooter = (doc: jsPDF) => {
   const pageHeight = doc.internal.pageSize.height;
   
   // Footer line
-  doc.setDrawColor(0, 102, 204);
+  doc.setDrawColor(34, 197, 94);
   doc.setLineWidth(0.5);
   doc.line(20, pageHeight - 25, doc.internal.pageSize.width - 20, pageHeight - 25);
   
@@ -73,6 +73,7 @@ const addInfoBox = (doc: jsPDF, title: string, content: string[], x: number, y: 
   // Content
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0); // Ensure black text for visibility
   content.forEach((line, index) => {
     doc.text(line, x + 3, y + 10 + (index * 5));
   });
@@ -109,7 +110,7 @@ export function generatePrescriptionPDF(
   yPosition += 40;
   
   // Medications Section
-  doc.setFillColor(0, 102, 204);
+  doc.setFillColor(34, 197, 94);
   doc.rect(20, yPosition, 170, 8, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(12);
@@ -126,7 +127,7 @@ export function generatePrescriptionPDF(
     doc.rect(20, yPosition, 170, 28, 'FD');
     
     // Medication number circle
-    doc.setFillColor(0, 102, 204);
+    doc.setFillColor(34, 197, 94);
     doc.circle(30, yPosition + 8, 4);
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(10);
@@ -202,7 +203,7 @@ export function generateInvoicePDF(
   yPosition += 35;
   
   // Services table header
-  doc.setFillColor(0, 102, 204);
+  doc.setFillColor(34, 197, 94);
   doc.rect(20, yPosition, 170, 8, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(12);
@@ -256,7 +257,7 @@ export function generateInvoicePDF(
   yPosition += 10;
   
   // Total
-  doc.setFillColor(0, 102, 204);
+  doc.setFillColor(34, 197, 94);
   doc.rect(120, yPosition, 70, 12, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(12);
@@ -314,7 +315,7 @@ export function generateConsultationPDF(
   yPosition += 40;
   
   // Consultation content section
-  doc.setFillColor(0, 102, 204);
+  doc.setFillColor(34, 197, 94);
   doc.rect(20, yPosition, 170, 8, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(12);

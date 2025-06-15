@@ -12,7 +12,7 @@ import NotFound from "@/pages/not-found";
 import { UserRound, BarChart3, Users, Calendar, FileText, DollarSign, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import logoSvg from "@/assets/logo.svg";
+import logoSvg from "@/assets/green-logo.svg";
 
 function Navigation() {
   const { doctor, logout } = useAuth();

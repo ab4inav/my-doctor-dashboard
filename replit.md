@@ -118,6 +118,11 @@ The application uses Firebase Authentication for user management with a hybrid a
 ## Changelog
 
 Recent Changes:
+- June 15, 2025: Added professional medical logo to application header replacing text-only branding
+- June 15, 2025: Completely redesigned PDF documents with professional styling including logo headers, organized layouts, and appealing visual elements
+- June 15, 2025: Enhanced prescription PDFs with medication cards, professional color scheme, and structured information boxes
+- June 15, 2025: Improved invoice PDFs with alternating row colors, professional totals section, and payment terms
+- June 15, 2025: Redesigned consultation note PDFs with clean content areas and proper formatting
 - June 15, 2025: Fixed rich text editor formatting display - consultation notes now properly render bold, italic, and underline formatting instead of showing raw markdown/HTML syntax
 - June 15, 2025: Improved PDF button placement in consultation notes for better UI layout
 - June 15, 2025: Enhanced PDF generation to support formatted text rendering with proper bold text styling
