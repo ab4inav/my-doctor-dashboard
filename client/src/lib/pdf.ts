@@ -149,26 +149,8 @@ export function generatePrescriptionPDF(
     yPosition += 33;
   });
   
-  // Additional Notes
-  if (prescription.notes) {
-    yPosition += 5;
-    doc.setFillColor(255, 248, 220);
-    doc.setDrawColor(255, 193, 7);
-    const notesHeight = Math.max(20, Math.ceil(prescription.notes.length / 80) * 5 + 10);
-    doc.rect(20, yPosition, 170, notesHeight, 'FD');
-    
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Additional Notes:', 25, yPosition + 8);
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    const noteLines = doc.splitTextToSize(prescription.notes, 160);
-    noteLines.forEach((line: string, index: number) => {
-      doc.text(line, 25, yPosition + 15 + (index * 4));
-    });
-  }
+  // Professional separator
+  yPosition += 5;
   
   // Validity notice
   yPosition += 35;
@@ -262,18 +244,40 @@ export function generateInvoicePDF(
   
   // Totals section
   yPosition += 10;
-  yPosition += 15;
   
-  doc.text(`Subtotal: NPR ${invoice.subtotal.toFixed(2)}`, 140, yPosition);
-  yPosition += 10;
-  doc.text(`Tax (${(invoice.taxRate * 100).toFixed(1)}%): NPR ${invoice.taxAmount.toFixed(2)}`, 140, yPosition);
-  yPosition += 10;
-  doc.setFontSize(12);
-  doc.text(`Total: NPR ${invoice.total.toFixed(2)}`, 140, yPosition);
-  
-  // Footer
+  // Subtotal
+  doc.setFillColor(245, 245, 245);
+  doc.rect(120, yPosition, 70, 8, 'F');
   doc.setFontSize(10);
-  doc.text("Thank you for your visit!", 20, doc.internal.pageSize.height - 20);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Subtotal:', 125, yPosition + 6);
+  doc.text(`NPR ${invoice.subtotal.toFixed(2)}`, 170, yPosition + 6);
+  
+  yPosition += 10;
+  
+  // Total
+  doc.setFillColor(0, 102, 204);
+  doc.rect(120, yPosition, 70, 12, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('TOTAL:', 125, yPosition + 8);
+  doc.text(`NPR ${invoice.total.toFixed(2)}`, 170, yPosition + 8);
+  
+  yPosition += 20;
+  
+  // Payment terms
+  doc.setTextColor(0, 0, 0);
+  doc.setFillColor(248, 250, 252);
+  doc.rect(20, yPosition, 170, 15, 'F');
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Payment Terms:', 25, yPosition + 7);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Payment due within 30 days of invoice date.', 25, yPosition + 12);
+  
+  // Add footer
+  addFooter(doc);
   
   // Download
   doc.save(`invoice-${invoice.invoiceNumber}.pdf`);
@@ -286,140 +290,70 @@ export function generateConsultationPDF(
 ) {
   const doc = new jsPDF();
   
-  // Header
-  doc.setFontSize(24);
-  doc.text("UpchaarNepal Pvt Ltd", 20, 20);
+  // Add professional header with logo
+  addLogoAndHeader(doc, 'Consultation Notes');
   
+  let yPosition = 65;
+  
+  // Doctor and consultation info
+  addInfoBox(doc, 'Consultation by', [
+    `Dr. ${doctor.firstName} ${doctor.lastName}`,
+    `Date: ${consultation.date.toLocaleDateString()}`,
+    `Time: ${consultation.date.toLocaleTimeString()}`,
+    `Title: ${consultation.title}`
+  ], 20, yPosition, 85);
+  
+  // Patient Information
+  addInfoBox(doc, 'Patient Information', [
+    `${patient.firstName} ${patient.lastName}`,
+    `Age: ${patient.age} years | ${patient.gender}`,
+    `Phone: ${patient.phoneNumber}`,
+    `Email: ${patient.email || 'Not provided'}`
+  ], 110, yPosition, 80);
+  
+  yPosition += 40;
+  
+  // Consultation content section
+  doc.setFillColor(0, 102, 204);
+  doc.rect(20, yPosition, 170, 8, 'F');
+  doc.setTextColor(255, 255, 255);
   doc.setFontSize(12);
-  doc.text("Kathmandu, Nepal", 20, 30);
-  doc.text("Phone No. - +977-01-5902597", 20, 40);
-  doc.text("Email: help@upchaarnepal.com", 20, 50);
-  doc.text("Website: www.upchaarnpeal.com", 20, 60);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CONSULTATION NOTES', 25, yPosition + 6);
   
-  doc.setFontSize(20);
-  doc.text("Consultation Notes", 20, 80);
+  // Consultation content area
+  doc.setFillColor(250, 250, 250);
+  doc.setDrawColor(200, 200, 200);
   
-  doc.setFontSize(12);
-  doc.text(`Dr. ${doctor.firstName} ${doctor.lastName}`, 20, 95);
-  doc.text(`Consultation Date: ${consultation.date.toLocaleDateString()}`, 20, 105);
+  // Calculate content height based on text length
+  const contentHeight = Math.max(40, Math.ceil(consultation.content.length / 80) * 5 + 20);
+  doc.rect(20, yPosition, 170, contentHeight, 'FD');
   
-  // Patient Info
-  doc.setFontSize(14);
-  doc.text("Patient Information:", 20, 125);
-  doc.setFontSize(12);
-  doc.text(`Name: ${patient.firstName} ${patient.lastName}`, 20, 135);
-  doc.text(`Age: ${patient.age} years`, 20, 145);
-  doc.text(`Gender: ${patient.gender}`, 20, 155);
-  doc.text(`Phone: ${patient.phoneNumber}`, 20, 165);
-  
-  // Consultation Details
-  doc.setFontSize(14);
-  doc.text("Consultation Details:", 20, 185);
-  
-  // Parse and render formatted content
-  let yPosition = 195;
-  const maxWidth = 170;
-  const lineHeight = 6;
-  
-  // Function to parse formatting and render text
-  const renderFormattedText = (text: string, startY: number) => {
+  // Render the consultation content with professional formatting
+  const parseAndRenderContent = (content: string, startY: number) => {
+    // Clean content and render in a professional format
+    const cleanContent = content
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markers for PDF
+      .replace(/\*(.*?)\*/g, '$1') // Remove italic markers
+      .replace(/<u>(.*?)<\/u>/g, '$1'); // Remove underline markers
+    
+    const contentLines = doc.splitTextToSize(cleanContent, 160);
     let currentY = startY;
     
-    // Split by lines first
-    const lines = text.split('\n');
-    
-    for (const line of lines) {
-      if (line.trim() === '') {
-        currentY += lineHeight;
-        continue;
-      }
-      
-      // Parse formatting within each line
-      const segments = [];
-      let currentText = line;
-      let currentPos = 0;
-      
-      // Find bold text **text**
-      const boldRegex = /\*\*(.*?)\*\*/g;
-      let match;
-      
-      while ((match = boldRegex.exec(line)) !== null) {
-        // Add text before bold
-        if (match.index > currentPos) {
-          segments.push({
-            text: line.substring(currentPos, match.index),
-            style: 'normal'
-          });
-        }
-        // Add bold text
-        segments.push({
-          text: match[1],
-          style: 'bold'
-        });
-        currentPos = match.index + match[0].length;
-      }
-      
-      // Add remaining text
-      if (currentPos < line.length) {
-        segments.push({
-          text: line.substring(currentPos),
-          style: 'normal'
-        });
-      }
-      
-      // If no formatting found, treat as normal text
-      if (segments.length === 0) {
-        segments.push({
-          text: line,
-          style: 'normal'
-        });
-      }
-      
-      // Render segments
-      let xPosition = 20;
-      for (const segment of segments) {
-        if (segment.text.trim() === '') continue;
-        
-        // Clean up any remaining formatting
-        let cleanText = segment.text
-          .replace(/\*(.*?)\*/g, '$1') // Remove italic markers
-          .replace(/<u>(.*?)<\/u>/g, '$1'); // Remove underline markers
-        
-        if (segment.style === 'bold') {
-          doc.setFont('helvetica', 'bold');
-        } else {
-          doc.setFont('helvetica', 'normal');
-        }
-        
-        doc.setFontSize(12);
-        
-        // Split text if it's too long for one line
-        const textLines = doc.splitTextToSize(cleanText, maxWidth - (xPosition - 20));
-        
-        for (let i = 0; i < textLines.length; i++) {
-          if (i === 0) {
-            doc.text(textLines[i], xPosition, currentY);
-            xPosition += doc.getTextWidth(textLines[i]);
-          } else {
-            currentY += lineHeight;
-            doc.text(textLines[i], 20, currentY);
-          }
-        }
-      }
-      
-      currentY += lineHeight;
-    }
+    contentLines.forEach((line: string) => {
+      doc.text(line, 25, currentY);
+      currentY += 5;
+    });
     
     return currentY;
   };
   
-  renderFormattedText(consultation.content, yPosition);
+  // Render the content
+  parseAndRenderContent(consultation.content, yPosition + 8);
   
-  // Footer
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.text("End of Consultation Notes", 20, doc.internal.pageSize.height - 20);
+  // Add footer
+  addFooter(doc);
   
   // Download
-  doc.save(`consultation-${consultation.date.toISOString()}.pdf`);
+  doc.save(`consultation-${consultation.date.toISOString().split('T')[0]}.pdf`);
 }
