@@ -118,6 +118,10 @@ The application uses Firebase Authentication for user management with a hybrid a
 ## Changelog
 
 Recent Changes:
+- June 15, 2025: Fixed rich text editor formatting display - consultation notes now properly render bold, italic, and underline formatting instead of showing raw markdown/HTML syntax
+- June 15, 2025: Improved PDF button placement in consultation notes for better UI layout
+- June 15, 2025: Enhanced PDF generation to support formatted text rendering with proper bold text styling
+- June 15, 2025: Completed migration from Replit Agent to Replit environment with proper port configuration and Firebase integration
 - June 14, 2025: Fixed consultation notes creation - resolved form validation conflicts with rich text editor
 - June 14, 2025: Fixed patient list display - removed Firestore orderBy requirements causing failed-precondition errors
 - June 14, 2025: Enhanced authentication handling with fallback doctor profiles for immediate functionality

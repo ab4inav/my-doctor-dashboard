@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { RichTextRenderer } from "@/components/ui/rich-text-renderer";
 import { AddConsultationModal } from "@/components/modals/AddConsultationModal";
 import { CreatePrescriptionModal } from "@/components/modals/CreatePrescriptionModal";
 import { CreateInvoiceModal } from "@/components/modals/CreateInvoiceModal";
@@ -236,7 +237,7 @@ export default function PatientProfile() {
                   >
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-3">
-                        <div>
+                        <div className="flex-1">
                           <h5 className="font-medium text-medical-gray-800">
                             {note.title}
                           </h5>
@@ -244,23 +245,22 @@ export default function PatientProfile() {
                             {note.date.toLocaleDateString()} -{" "}
                             {note.date.toLocaleTimeString()}
                           </p>
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              generateConsultationPDF(note, patient, doctor)
-                            }
-                            className="bg-medical-blue hover:bg-blue-700"
-                          >
-                            <Download className="h-4 w-4 mr-1" />
-                            PDF
-                          </Button>
                         </div>
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            generateConsultationPDF(note, patient, doctor)
+                          }
+                          className="bg-medical-blue hover:bg-blue-700 ml-4"
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          PDF
+                        </Button>
                       </div>
-                      <div className="prose prose-sm max-w-none text-medical-gray-700">
-                        {note.content.split("\n").map((line, index) => (
-                          <p key={index}>{line}</p>
-                        ))}
-                      </div>
+                      <RichTextRenderer 
+                        content={note.content}
+                        className="mt-3"
+                      />
                     </CardContent>
                   </Card>
                 ))}

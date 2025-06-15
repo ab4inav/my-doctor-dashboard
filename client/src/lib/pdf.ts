@@ -163,10 +163,108 @@ export function generateConsultationPDF(
   // Consultation Details
   doc.setFontSize(14);
   doc.text("Consultation Details:", 20, 185);
-  doc.setFontSize(12);
-  doc.text(consultation.content, 20, 195, { maxWidth: 170 });
+  
+  // Parse and render formatted content
+  let yPosition = 195;
+  const maxWidth = 170;
+  const lineHeight = 6;
+  
+  // Function to parse formatting and render text
+  const renderFormattedText = (text: string, startY: number) => {
+    let currentY = startY;
+    
+    // Split by lines first
+    const lines = text.split('\n');
+    
+    for (const line of lines) {
+      if (line.trim() === '') {
+        currentY += lineHeight;
+        continue;
+      }
+      
+      // Parse formatting within each line
+      const segments = [];
+      let currentText = line;
+      let currentPos = 0;
+      
+      // Find bold text **text**
+      const boldRegex = /\*\*(.*?)\*\*/g;
+      let match;
+      
+      while ((match = boldRegex.exec(line)) !== null) {
+        // Add text before bold
+        if (match.index > currentPos) {
+          segments.push({
+            text: line.substring(currentPos, match.index),
+            style: 'normal'
+          });
+        }
+        // Add bold text
+        segments.push({
+          text: match[1],
+          style: 'bold'
+        });
+        currentPos = match.index + match[0].length;
+      }
+      
+      // Add remaining text
+      if (currentPos < line.length) {
+        segments.push({
+          text: line.substring(currentPos),
+          style: 'normal'
+        });
+      }
+      
+      // If no formatting found, treat as normal text
+      if (segments.length === 0) {
+        segments.push({
+          text: line,
+          style: 'normal'
+        });
+      }
+      
+      // Render segments
+      let xPosition = 20;
+      for (const segment of segments) {
+        if (segment.text.trim() === '') continue;
+        
+        // Clean up any remaining formatting
+        let cleanText = segment.text
+          .replace(/\*(.*?)\*/g, '$1') // Remove italic markers
+          .replace(/<u>(.*?)<\/u>/g, '$1'); // Remove underline markers
+        
+        if (segment.style === 'bold') {
+          doc.setFont('helvetica', 'bold');
+        } else {
+          doc.setFont('helvetica', 'normal');
+        }
+        
+        doc.setFontSize(12);
+        
+        // Split text if it's too long for one line
+        const textLines = doc.splitTextToSize(cleanText, maxWidth - (xPosition - 20));
+        
+        for (let i = 0; i < textLines.length; i++) {
+          if (i === 0) {
+            doc.text(textLines[i], xPosition, currentY);
+            xPosition += doc.getTextWidth(textLines[i]);
+          } else {
+            currentY += lineHeight;
+            doc.text(textLines[i], 20, currentY);
+          }
+        }
+      }
+      
+      currentY += lineHeight;
+    }
+    
+    return currentY;
+  };
+  
+  renderFormattedText(consultation.content, yPosition);
   
   // Footer
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.text("End of Consultation Notes", 20, doc.internal.pageSize.height - 20);
   
