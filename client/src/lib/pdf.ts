@@ -338,6 +338,11 @@ export function generateConsultationPDF(
       .replace(/\*(.*?)\*/g, '$1') // Remove italic markers
       .replace(/<u>(.*?)<\/u>/g, '$1'); // Remove underline markers
     
+    // Ensure black text for visibility
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
     const contentLines = doc.splitTextToSize(cleanContent, 160);
     let currentY = startY;
     
