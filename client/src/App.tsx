@@ -12,6 +12,7 @@ import NotFound from "@/pages/not-found";
 import { UserRound, BarChart3, Users, Calendar, FileText, DollarSign, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
+import logoSvg from "@/assets/logo.svg";
 
 function Navigation() {
   const { doctor, logout } = useAuth();
@@ -39,10 +40,7 @@ function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-medical-blue rounded-lg flex items-center justify-center">
-                <UserRound className="text-white text-sm" />
-              </div>
-              <h1 className="ml-3 text-xl font-semibold text-medical-gray-800">MediPractice</h1>
+              <img src={logoSvg} alt="MediPractice Logo" className="h-10" />
             </div>
             
             <div className="flex items-center space-x-4">

@@ -1,6 +1,83 @@
 import jsPDF from "jspdf";
 import type { Prescription, Invoice, Patient, Doctor, ConsultationNote } from "@shared/schema";
 
+// Helper function to add logo and header to PDF
+const addLogoAndHeader = (doc: jsPDF, title: string) => {
+  // Header background
+  doc.setFillColor(0, 102, 204); // Medical blue
+  doc.rect(0, 0, doc.internal.pageSize.width, 35, 'F');
+  
+  // Company logo/icon (simplified medical cross)
+  doc.setFillColor(255, 255, 255);
+  doc.circle(25, 17.5, 8);
+  doc.setFillColor(0, 102, 204);
+  doc.rect(21, 12, 8, 11);
+  doc.rect(17, 16, 16, 3);
+  
+  // Company name
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('MediPractice', 40, 20);
+  
+  // Tagline
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Healthcare Management System', 40, 28);
+  
+  // Document title
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text(title, 20, 50);
+  
+  // Reset text color
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+};
+
+// Helper function to add footer
+const addFooter = (doc: jsPDF) => {
+  const pageHeight = doc.internal.pageSize.height;
+  
+  // Footer line
+  doc.setDrawColor(0, 102, 204);
+  doc.setLineWidth(0.5);
+  doc.line(20, pageHeight - 25, doc.internal.pageSize.width - 20, pageHeight - 25);
+  
+  // Footer text
+  doc.setFontSize(9);
+  doc.setTextColor(102, 102, 102);
+  doc.text('UpchaarNepal Pvt Ltd | Kathmandu, Nepal', 20, pageHeight - 18);
+  doc.text('Phone: +977-01-5902597 | Email: help@upchaarnepal.com', 20, pageHeight - 13);
+  doc.text('Website: www.upchaarnepal.com', 20, pageHeight - 8);
+  
+  // Page number
+  const pageNum = doc.getCurrentPageInfo().pageNumber;
+  doc.text(`Page ${pageNum}`, doc.internal.pageSize.width - 30, pageHeight - 8);
+};
+
+// Helper function to create a professional info box
+const addInfoBox = (doc: jsPDF, title: string, content: string[], x: number, y: number, width: number) => {
+  // Box background
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(226, 232, 240);
+  doc.rect(x, y, width, 6 + (content.length * 5), 'FD');
+  
+  // Title
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(51, 65, 85);
+  doc.text(title, x + 3, y + 5);
+  
+  // Content
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  content.forEach((line, index) => {
+    doc.text(line, x + 3, y + 10 + (index * 5));
+  });
+};
+
 export function generatePrescriptionPDF(
   prescription: Prescription,
   patient: Patient,
@@ -8,41 +85,102 @@ export function generatePrescriptionPDF(
 ) {
   const doc = new jsPDF();
   
-  // Header
-  doc.setFontSize(20);
-  doc.text("Medical Prescription", 20, 20);
+  // Add professional header with logo
+  addLogoAndHeader(doc, 'Medical Prescription');
   
+  let yPosition = 65;
+  
+  // Doctor and Date info
+  addInfoBox(doc, 'Prescribed by', [
+    `Dr. ${doctor.firstName} ${doctor.lastName}`,
+    `Prescription #: ${prescription.prescriptionNumber}`,
+    `Date: ${prescription.date.toLocaleDateString()}`,
+    `Time: ${prescription.date.toLocaleTimeString()}`
+  ], 20, yPosition, 85);
+  
+  // Patient Information
+  addInfoBox(doc, 'Patient Information', [
+    `${patient.firstName} ${patient.lastName}`,
+    `Age: ${patient.age} years | ${patient.gender}`,
+    `Phone: ${patient.phoneNumber}`,
+    `Email: ${patient.email || 'Not provided'}`
+  ], 110, yPosition, 80);
+  
+  yPosition += 40;
+  
+  // Medications Section
+  doc.setFillColor(0, 102, 204);
+  doc.rect(20, yPosition, 170, 8, 'F');
+  doc.setTextColor(255, 255, 255);
   doc.setFontSize(12);
-  doc.text(`Dr. ${doctor.firstName} ${doctor.lastName}`, 20, 35);
-  doc.text(`Prescription #: ${prescription.prescriptionNumber}`, 20, 45);
-  doc.text(`Date: ${prescription.date.toLocaleDateString()}`, 20, 55);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PRESCRIBED MEDICATIONS', 25, yPosition + 6);
   
-  // Patient Info
-  doc.setFontSize(14);
-  doc.text("Patient Information:", 20, 75);
-  doc.setFontSize(12);
-  doc.text(`Name: ${patient.firstName} ${patient.lastName}`, 20, 85);
-  doc.text(`Age: ${patient.age} years`, 20, 95);
-  doc.text(`Gender: ${patient.gender}`, 20, 105);
-  doc.text(`Phone: ${patient.phoneNumber}`, 20, 115);
+  yPosition += 15;
+  doc.setTextColor(0, 0, 0);
   
-  // Medications
-  doc.setFontSize(14);
-  doc.text("Prescribed Medications:", 20, 135);
-  
-  let yPosition = 150;
   prescription.medications.forEach((medication, index) => {
+    // Medication box
+    doc.setFillColor(250, 250, 250);
+    doc.setDrawColor(200, 200, 200);
+    doc.rect(20, yPosition, 170, 28, 'FD');
+    
+    // Medication number circle
+    doc.setFillColor(0, 102, 204);
+    doc.circle(30, yPosition + 8, 4);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text((index + 1).toString(), 28, yPosition + 10);
+    
+    // Medication details
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
-    doc.text(`${index + 1}. ${medication.name} - ${medication.dosage}`, 25, yPosition);
-    doc.text(`   Instructions: ${medication.instructions}`, 25, yPosition + 10);
-    doc.text(`   Duration: ${medication.duration}`, 25, yPosition + 20);
-    doc.text(`   Refills: ${medication.refills}`, 25, yPosition + 30);
-    yPosition += 45;
+    doc.setFont('helvetica', 'bold');
+    doc.text(medication.name, 40, yPosition + 8);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(51, 51, 51);
+    doc.text(`Dosage: ${medication.dosage}`, 40, yPosition + 15);
+    doc.text(`Instructions: ${medication.instructions}`, 40, yPosition + 20);
+    doc.text(`Duration: ${medication.duration} | Refills: ${medication.refills}`, 40, yPosition + 25);
+    
+    yPosition += 33;
   });
   
-  // Footer
+  // Additional Notes
+  if (prescription.notes) {
+    yPosition += 5;
+    doc.setFillColor(255, 248, 220);
+    doc.setDrawColor(255, 193, 7);
+    const notesHeight = Math.max(20, Math.ceil(prescription.notes.length / 80) * 5 + 10);
+    doc.rect(20, yPosition, 170, notesHeight, 'FD');
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Additional Notes:', 25, yPosition + 8);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const noteLines = doc.splitTextToSize(prescription.notes, 160);
+    noteLines.forEach((line: string, index: number) => {
+      doc.text(line, 25, yPosition + 15 + (index * 4));
+    });
+  }
+  
+  // Validity notice
+  yPosition += 35;
+  doc.setFillColor(220, 220, 220);
+  doc.rect(20, yPosition, 170, 12, 'F');
+  doc.setTextColor(51, 51, 51);
   doc.setFontSize(10);
-  doc.text("This prescription is valid for 30 days from the date of issue.", 20, doc.internal.pageSize.height - 20);
+  doc.setFont('helvetica', 'italic');
+  doc.text('This prescription is valid for 30 days from the date of issue.', 25, yPosition + 8);
+  
+  // Add footer
+  addFooter(doc);
   
   // Download
   doc.save(`prescription-${prescription.prescriptionNumber}.pdf`);
@@ -55,61 +193,75 @@ export function generateInvoicePDF(
 ) {
   const doc = new jsPDF();
   
-  // Header
-  doc.setFontSize(24);
-  doc.text("UpchaarNepal Pvt Ltd", 20, 20);
+  // Add professional header with logo
+  addLogoAndHeader(doc, 'Medical Invoice');
   
+  let yPosition = 65;
+  
+  // Invoice details and status
+  const statusColor = invoice.status === 'paid' ? [34, 197, 94] : 
+                     invoice.status === 'pending' ? [251, 146, 60] : [239, 68, 68];
+  
+  addInfoBox(doc, 'Invoice Details', [
+    `Invoice #: ${invoice.invoiceNumber}`,
+    `Date: ${invoice.date.toLocaleDateString()}`,
+    `Dr. ${doctor.firstName} ${doctor.lastName}`,
+    `Status: ${invoice.status.toUpperCase()}`
+  ], 20, yPosition, 85);
+  
+  // Patient/Bill to information
+  addInfoBox(doc, 'Bill To', [
+    `${patient.firstName} ${patient.lastName}`,
+    `Phone: ${patient.phoneNumber}`,
+    `Email: ${patient.email || 'Not provided'}`,
+    `Age: ${patient.age} years`
+  ], 110, yPosition, 80);
+  
+  yPosition += 35;
+  
+  // Services table header
+  doc.setFillColor(0, 102, 204);
+  doc.rect(20, yPosition, 170, 8, 'F');
+  doc.setTextColor(255, 255, 255);
   doc.setFontSize(12);
-  doc.text("Kathmandu, Nepal", 20, 30);
-  doc.text("Phone No. - +977-01-5902597", 20, 40);
-  doc.text("Email: help@upchaarnepal.com", 20, 50);
-  doc.text("Website: www.upchaarnpeal.com", 20, 60);
+  doc.setFont('helvetica', 'bold');
+  doc.text('SERVICES & CHARGES', 25, yPosition + 6);
   
-  doc.setFontSize(20);
-  doc.text("Medical Invoice", 20, 80);
-  
-  doc.setFontSize(12);
-  doc.text(`Dr. ${doctor.firstName} ${doctor.lastName}`, 20, 35);
-  doc.text(`Invoice #: ${invoice.invoiceNumber}`, 20, 45);
-  doc.text(`Date: ${invoice.date.toLocaleDateString()}`, 20, 55);
-  doc.text(`Status: ${invoice.status.toUpperCase()}`, 20, 65);
-  
-  // Patient Info
-  doc.setFontSize(14);
-  doc.text("Bill To:", 20, 85);
-  doc.setFontSize(12);
-  doc.text(`${patient.firstName} ${patient.lastName}`, 20, 95);
-  doc.text(`${patient.phoneNumber}`, 20, 105);
-  if (patient.email) {
-    doc.text(`${patient.email}`, 20, 115);
-  }
-  
-  // Invoice Items
-  doc.setFontSize(14);
-  doc.text("Services:", 20, 135);
+  yPosition += 15;
   
   // Table headers
+  doc.setFillColor(240, 240, 240);
+  doc.rect(20, yPosition, 170, 10, 'F');
+  doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
-  doc.text("Description", 25, 150);
-  doc.text("Qty", 120, 150);
-  doc.text("Unit Price (NPR)", 140, 150);
-  doc.text("Total (NPR)", 170, 150);
+  doc.setFont('helvetica', 'bold');
+  doc.text('DESCRIPTION', 25, yPosition + 7);
+  doc.text('QTY', 120, yPosition + 7);
+  doc.text('UNIT PRICE', 140, yPosition + 7);
+  doc.text('TOTAL', 170, yPosition + 7);
   
-  // Table line
-  doc.line(20, 155, 190, 155);
+  yPosition += 15;
   
-  let yPosition = 165;
-  invoice.items.forEach((item) => {
-    doc.text(item.description, 25, yPosition);
-    doc.text(item.quantity.toString(), 120, yPosition);
-    doc.text(`NPR ${item.unitPrice.toFixed(2)}`, 140, yPosition);
-    doc.text(`NPR ${item.total.toFixed(2)}`, 170, yPosition);
-    yPosition += 15;
+  // Invoice items
+  invoice.items.forEach((item, index) => {
+    // Alternating row colors
+    if (index % 2 === 0) {
+      doc.setFillColor(250, 250, 250);
+      doc.rect(20, yPosition - 3, 170, 12, 'F');
+    }
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(item.description, 25, yPosition + 5);
+    doc.text(item.quantity.toString(), 125, yPosition + 5);
+    doc.text(`NPR ${item.unitPrice.toFixed(2)}`, 145, yPosition + 5);
+    doc.text(`NPR ${item.total.toFixed(2)}`, 175, yPosition + 5);
+    yPosition += 12;
   });
   
-  // Totals
+  // Totals section
   yPosition += 10;
-  doc.line(20, yPosition, 190, yPosition);
   yPosition += 15;
   
   doc.text(`Subtotal: NPR ${invoice.subtotal.toFixed(2)}`, 140, yPosition);
