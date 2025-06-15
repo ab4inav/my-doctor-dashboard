@@ -2,11 +2,22 @@ import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { insertInvoiceSchema, type InsertInvoice } from "@shared/schema";
 import { createInvoice } from "@/lib/firestore";
@@ -19,11 +30,11 @@ interface CreateInvoiceModalProps {
   onInvoiceCreated: () => void;
 }
 
-export function CreateInvoiceModal({ 
-  open, 
-  onClose, 
-  patientId, 
-  onInvoiceCreated 
+export function CreateInvoiceModal({
+  open,
+  onClose,
+  patientId,
+  onInvoiceCreated,
 }: CreateInvoiceModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { doctor } = useAuth();
@@ -42,7 +53,7 @@ export function CreateInvoiceModal({
           total: 0,
         },
       ],
-      taxRate: 0.085, // 8.5% default tax rate
+      taxRate: 0.13, // 13% default tax rate
       status: "pending",
       date: new Date(),
     },
@@ -105,7 +116,10 @@ export function CreateInvoiceModal({
     });
   };
 
-  const subtotal = watchedItems.reduce((sum, item) => sum + (item?.total || 0), 0);
+  const subtotal = watchedItems.reduce(
+    (sum, item) => sum + (item?.total || 0),
+    0
+  );
   const taxAmount = subtotal * (form.watch("taxRate") || 0);
   const total = subtotal + taxAmount;
 
@@ -165,7 +179,10 @@ export function CreateInvoiceModal({
 
             <div className="space-y-4">
               {fields.map((field, index) => (
-                <div key={field.id} className="border border-medical-gray-200 rounded-lg p-4">
+                <div
+                  key={field.id}
+                  className="border border-medical-gray-200 rounded-lg p-4"
+                >
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-medium text-medical-gray-800">
                       Item {index + 1}
@@ -185,7 +202,9 @@ export function CreateInvoiceModal({
 
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="md:col-span-2">
-                      <Label htmlFor={`items.${index}.description`}>Description *</Label>
+                      <Label htmlFor={`items.${index}.description`}>
+                        Description *
+                      </Label>
                       <Input
                         {...form.register(`items.${index}.description`)}
                         className="mt-1"
@@ -193,26 +212,32 @@ export function CreateInvoiceModal({
                       />
                     </div>
                     <div>
-                      <Label htmlFor={`items.${index}.quantity`}>Quantity *</Label>
+                      <Label htmlFor={`items.${index}.quantity`}>
+                        Quantity *
+                      </Label>
                       <Input
                         type="number"
                         min="1"
                         {...form.register(`items.${index}.quantity`, {
                           valueAsNumber: true,
-                          onChange: () => setTimeout(() => calculateItemTotal(index), 0),
+                          onChange: () =>
+                            setTimeout(() => calculateItemTotal(index), 0),
                         })}
                         className="mt-1"
                       />
                     </div>
                     <div>
-                      <Label htmlFor={`items.${index}.unitPrice`}>Unit Price *</Label>
+                      <Label htmlFor={`items.${index}.unitPrice`}>
+                        Unit Price *
+                      </Label>
                       <Input
                         type="number"
                         min="0"
                         step="0.01"
                         {...form.register(`items.${index}.unitPrice`, {
                           valueAsNumber: true,
-                          onChange: () => setTimeout(() => calculateItemTotal(index), 0),
+                          onChange: () =>
+                            setTimeout(() => calculateItemTotal(index), 0),
                         })}
                         className="mt-1"
                         placeholder="0.00"

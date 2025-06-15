@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
-import { ArrowLeft, Edit, Download, Plus, TriangleAlert, Pill, Heart, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  Download,
+  Plus,
+  TriangleAlert,
+  Pill,
+  Heart,
+  Users,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,13 +20,17 @@ import { CreatePrescriptionModal } from "@/components/modals/CreatePrescriptionM
 import { CreateInvoiceModal } from "@/components/modals/CreateInvoiceModal";
 import { EditPatientModal } from "@/components/modals/EditPatientModal";
 import { useAuth } from "@/contexts/AuthContext";
-import { 
-  getPatient, 
-  getConsultationNotesByPatient, 
-  getPrescriptionsByPatient, 
-  getInvoicesByPatient 
+import {
+  getPatient,
+  getConsultationNotesByPatient,
+  getPrescriptionsByPatient,
+  getInvoicesByPatient,
 } from "@/lib/firestore";
-import { generatePrescriptionPDF, generateInvoicePDF } from "@/lib/pdf";
+import {
+  generatePrescriptionPDF,
+  generateInvoicePDF,
+  generateConsultationPDF,
+} from "@/lib/pdf";
 import { useLocation } from "wouter";
 
 export default function PatientProfile() {
@@ -59,7 +72,9 @@ export default function PatientProfile() {
     return (
       <div className="p-6">
         <div className="text-center">
-          <p className="text-medical-gray-600">Loading patient information...</p>
+          <p className="text-medical-gray-600">
+            Loading patient information...
+          </p>
         </div>
       </div>
     );
@@ -79,10 +94,14 @@ export default function PatientProfile() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "paid": return "bg-medical-green text-white";
-      case "pending": return "bg-orange-100 text-orange-600";
-      case "overdue": return "bg-red-100 text-red-600";
-      default: return "bg-medical-gray-100 text-medical-gray-600";
+      case "paid":
+        return "bg-medical-green text-white";
+      case "pending":
+        return "bg-orange-100 text-orange-600";
+      case "overdue":
+        return "bg-red-100 text-red-600";
+      default:
+        return "bg-medical-gray-100 text-medical-gray-600";
     }
   };
 
@@ -98,8 +117,12 @@ export default function PatientProfile() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h2 className="text-2xl font-bold text-medical-gray-800">Patient Profile</h2>
-          <p className="text-medical-gray-600 mt-1">Complete patient information and medical records</p>
+          <h2 className="text-2xl font-bold text-medical-gray-800">
+            Patient Profile
+          </h2>
+          <p className="text-medical-gray-600 mt-1">
+            Complete patient information and medical records
+          </p>
         </div>
       </div>
 
@@ -117,16 +140,23 @@ export default function PatientProfile() {
                 <h3 className="text-xl font-bold text-medical-gray-800">
                   {patient.firstName} {patient.lastName}
                 </h3>
-                <p className="text-medical-gray-600">Patient ID: {patient.id.slice(-8)}</p>
+                <p className="text-medical-gray-600">
+                  Patient ID: {patient.id.slice(-8)}
+                </p>
                 <div className="flex items-center space-x-4 mt-2 text-sm">
                   <span className="text-medical-gray-600">
-                    Age: <span className="font-medium">{patient.age} years</span>
+                    Age:{" "}
+                    <span className="font-medium">{patient.age} years</span>
                   </span>
                   <span className="text-medical-gray-600">
-                    Gender: <span className="font-medium capitalize">{patient.gender}</span>
+                    Gender:{" "}
+                    <span className="font-medium capitalize">
+                      {patient.gender}
+                    </span>
                   </span>
                   <span className="text-medical-gray-600">
-                    Contact: <span className="font-medium">{patient.phoneNumber}</span>
+                    Contact:{" "}
+                    <span className="font-medium">{patient.phoneNumber}</span>
                   </span>
                 </div>
               </div>
@@ -144,26 +174,26 @@ export default function PatientProfile() {
         <Tabs defaultValue="consultation" className="w-full">
           <div className="border-b border-medical-gray-200">
             <TabsList className="h-auto p-0 bg-transparent">
-              <TabsTrigger 
-                value="consultation" 
+              <TabsTrigger
+                value="consultation"
                 className="border-b-2 border-transparent data-[state=active]:border-medical-blue data-[state=active]:text-medical-blue rounded-none px-6 py-4"
               >
                 Consultation Notes
               </TabsTrigger>
-              <TabsTrigger 
-                value="prescriptions" 
+              <TabsTrigger
+                value="prescriptions"
                 className="border-b-2 border-transparent data-[state=active]:border-medical-blue data-[state=active]:text-medical-blue rounded-none px-6 py-4"
               >
                 Prescriptions
               </TabsTrigger>
-              <TabsTrigger 
-                value="invoices" 
+              <TabsTrigger
+                value="invoices"
                 className="border-b-2 border-transparent data-[state=active]:border-medical-blue data-[state=active]:text-medical-blue rounded-none px-6 py-4"
               >
                 Invoices
               </TabsTrigger>
-              <TabsTrigger 
-                value="history" 
+              <TabsTrigger
+                value="history"
                 className="border-b-2 border-transparent data-[state=active]:border-medical-blue data-[state=active]:text-medical-blue rounded-none px-6 py-4"
               >
                 Medical History
@@ -173,7 +203,9 @@ export default function PatientProfile() {
 
           <TabsContent value="consultation" className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h4 className="text-lg font-semibold text-medical-gray-800">Consultation Notes</h4>
+              <h4 className="text-lg font-semibold text-medical-gray-800">
+                Consultation Notes
+              </h4>
               <Button
                 onClick={() => setShowConsultationModal(true)}
                 className="bg-medical-blue hover:bg-blue-700"
@@ -185,7 +217,9 @@ export default function PatientProfile() {
 
             {consultationNotes.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-medical-gray-600">No consultation notes yet</p>
+                <p className="text-medical-gray-600">
+                  No consultation notes yet
+                </p>
                 <Button
                   onClick={() => setShowConsultationModal(true)}
                   className="mt-4 bg-medical-blue hover:bg-blue-700"
@@ -196,18 +230,34 @@ export default function PatientProfile() {
             ) : (
               <div className="space-y-4">
                 {consultationNotes.map((note) => (
-                  <Card key={note.id} className="border border-medical-gray-200">
+                  <Card
+                    key={note.id}
+                    className="border border-medical-gray-200"
+                  >
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h5 className="font-medium text-medical-gray-800">{note.title}</h5>
+                          <h5 className="font-medium text-medical-gray-800">
+                            {note.title}
+                          </h5>
                           <p className="text-sm text-medical-gray-600">
-                            {note.date.toLocaleDateString()} - {note.date.toLocaleTimeString()}
+                            {note.date.toLocaleDateString()} -{" "}
+                            {note.date.toLocaleTimeString()}
                           </p>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              generateConsultationPDF(note, patient, doctor)
+                            }
+                            className="bg-medical-blue hover:bg-blue-700"
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            PDF
+                          </Button>
                         </div>
                       </div>
                       <div className="prose prose-sm max-w-none text-medical-gray-700">
-                        {note.content.split('\n').map((line, index) => (
+                        {note.content.split("\n").map((line, index) => (
                           <p key={index}>{line}</p>
                         ))}
                       </div>
@@ -220,7 +270,9 @@ export default function PatientProfile() {
 
           <TabsContent value="prescriptions" className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h4 className="text-lg font-semibold text-medical-gray-800">Prescriptions</h4>
+              <h4 className="text-lg font-semibold text-medical-gray-800">
+                Prescriptions
+              </h4>
               <Button
                 onClick={() => setShowPrescriptionModal(true)}
                 className="bg-medical-blue hover:bg-blue-700"
@@ -232,7 +284,9 @@ export default function PatientProfile() {
 
             {prescriptions.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-medical-gray-600">No prescriptions created yet</p>
+                <p className="text-medical-gray-600">
+                  No prescriptions created yet
+                </p>
                 <Button
                   onClick={() => setShowPrescriptionModal(true)}
                   className="mt-4 bg-medical-blue hover:bg-blue-700"
@@ -243,7 +297,10 @@ export default function PatientProfile() {
             ) : (
               <div className="space-y-4">
                 {prescriptions.map((prescription) => (
-                  <Card key={prescription.id} className="bg-medical-gray-50 border border-medical-gray-200">
+                  <Card
+                    key={prescription.id}
+                    className="bg-medical-gray-50 border border-medical-gray-200"
+                  >
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-4">
                         <div>
@@ -256,7 +313,9 @@ export default function PatientProfile() {
                         </div>
                         <Button
                           size="sm"
-                          onClick={() => handleDownloadPrescription(prescription)}
+                          onClick={() =>
+                            handleDownloadPrescription(prescription)
+                          }
                           className="bg-medical-blue hover:bg-blue-700"
                         >
                           <Download className="h-4 w-4 mr-1" />
@@ -266,15 +325,26 @@ export default function PatientProfile() {
 
                       <div className="space-y-3">
                         {prescription.medications.map((medication, index) => (
-                          <div key={index} className="bg-white rounded-lg border border-medical-gray-200 p-3">
+                          <div
+                            key={index}
+                            className="bg-white rounded-lg border border-medical-gray-200 p-3"
+                          >
                             <div className="flex justify-between items-center">
                               <div>
-                                <p className="font-medium text-medical-gray-800">{medication.name} {medication.dosage}</p>
-                                <p className="text-sm text-medical-gray-600">{medication.instructions}</p>
+                                <p className="font-medium text-medical-gray-800">
+                                  {medication.name} {medication.dosage}
+                                </p>
+                                <p className="text-sm text-medical-gray-600">
+                                  {medication.instructions}
+                                </p>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm font-medium text-medical-gray-800">{medication.duration}</p>
-                                <p className="text-xs text-medical-gray-600">{medication.refills} refills</p>
+                                <p className="text-sm font-medium text-medical-gray-800">
+                                  {medication.duration}
+                                </p>
+                                <p className="text-xs text-medical-gray-600">
+                                  {medication.refills} refills
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -289,7 +359,9 @@ export default function PatientProfile() {
 
           <TabsContent value="invoices" className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h4 className="text-lg font-semibold text-medical-gray-800">Invoices</h4>
+              <h4 className="text-lg font-semibold text-medical-gray-800">
+                Invoices
+              </h4>
               <Button
                 onClick={() => setShowInvoiceModal(true)}
                 className="bg-medical-blue hover:bg-blue-700"
@@ -312,7 +384,10 @@ export default function PatientProfile() {
             ) : (
               <div className="space-y-4">
                 {invoices.map((invoice) => (
-                  <Card key={invoice.id} className="border border-medical-gray-200">
+                  <Card
+                    key={invoice.id}
+                    className="border border-medical-gray-200"
+                  >
                     <CardContent className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <div>
@@ -325,7 +400,8 @@ export default function PatientProfile() {
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge className={getStatusColor(invoice.status)}>
-                            {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                            {invoice.status.charAt(0).toUpperCase() +
+                              invoice.status.slice(1)}
                           </Badge>
                           <Button
                             size="sm"
@@ -340,28 +416,45 @@ export default function PatientProfile() {
 
                       <div className="space-y-3">
                         {invoice.items.map((item, index) => (
-                          <div key={index} className="flex justify-between items-center p-3 bg-medical-gray-50 rounded-lg">
+                          <div
+                            key={index}
+                            className="flex justify-between items-center p-3 bg-medical-gray-50 rounded-lg"
+                          >
                             <div>
-                              <p className="font-medium text-medical-gray-800">{item.description}</p>
-                              <p className="text-sm text-medical-gray-600">Qty: {item.quantity}</p>
+                              <p className="font-medium text-medical-gray-800">
+                                {item.description}
+                              </p>
+                              <p className="text-sm text-medical-gray-600">
+                                Qty: {item.quantity}
+                              </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm text-medical-gray-600">Unit: Rs. {item.unitPrice.toFixed(2)}</p>
-                              <p className="font-medium text-medical-gray-800">Rs. {item.total.toFixed(2)}</p>
+                              <p className="text-sm text-medical-gray-600">
+                                Unit: Rs. {item.unitPrice.toFixed(2)}
+                              </p>
+                              <p className="font-medium text-medical-gray-800">
+                                Rs. {item.total.toFixed(2)}
+                              </p>
                             </div>
                           </div>
                         ))}
 
                         <div className="border-t border-medical-gray-200 pt-3 mt-3">
                           <div className="flex justify-between items-center">
-                            <span className="text-medical-gray-600">Subtotal:</span>
-                            <span className="font-medium text-medical-gray-800">Rs. {invoice.subtotal.toFixed(2)}</span>
+                            <span className="text-medical-gray-600">
+                              Subtotal:
+                            </span>
+                            <span className="font-medium text-medical-gray-800">
+                              Rs. {invoice.subtotal.toFixed(2)}
+                            </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-medical-gray-600">
                               Tax ({(invoice.taxRate * 100).toFixed(1)}%):
                             </span>
-                            <span className="font-medium text-medical-gray-800">Rs. {invoice.taxAmount.toFixed(2)}</span>
+                            <span className="font-medium text-medical-gray-800">
+                              Rs. {invoice.taxAmount.toFixed(2)}
+                            </span>
                           </div>
                           <div className="flex justify-between items-center text-lg font-semibold text-medical-gray-800 border-t border-medical-gray-200 pt-2 mt-2">
                             <span>Total:</span>
@@ -378,7 +471,9 @@ export default function PatientProfile() {
 
           <TabsContent value="history" className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h4 className="text-lg font-semibold text-medical-gray-800">Medical History</h4>
+              <h4 className="text-lg font-semibold text-medical-gray-800">
+                Medical History
+              </h4>
               <Button variant="outline" className="border-medical-gray-300">
                 <Edit className="h-4 w-4 mr-2" />
                 Update History
@@ -410,7 +505,9 @@ export default function PatientProfile() {
                       Blood Type
                     </h5>
                     <div className="p-3 bg-medical-gray-50 rounded-lg">
-                      <span className="font-medium text-medical-gray-800">{patient.bloodType}</span>
+                      <span className="font-medium text-medical-gray-800">
+                        {patient.bloodType}
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
@@ -425,9 +522,13 @@ export default function PatientProfile() {
                       Emergency Contact
                     </h5>
                     <div className="p-3 bg-medical-gray-50 rounded-lg">
-                      <p className="font-medium text-medical-gray-800">{patient.emergencyContactName}</p>
+                      <p className="font-medium text-medical-gray-800">
+                        {patient.emergencyContactName}
+                      </p>
                       {patient.emergencyContactPhone && (
-                        <p className="text-sm text-medical-gray-600">{patient.emergencyContactPhone}</p>
+                        <p className="text-sm text-medical-gray-600">
+                          {patient.emergencyContactPhone}
+                        </p>
                       )}
                     </div>
                   </CardContent>
