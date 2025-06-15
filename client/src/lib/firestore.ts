@@ -252,6 +252,18 @@ export async function createPrescription(data: InsertPrescription): Promise<Pres
     console.error("Error creating prescription:", error);
     throw new Error("Failed to create prescription. Please ensure Firestore is properly configured.");
   }
+
+}
+  
+export async function getPrescriptionCountByDoctor(doctorId: string): Promise<number> {
+  try {
+    const q = query(collection(db, "prescriptions"), where("doctorId", "==", doctorId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.size;
+  } catch (error) {
+    console.error("Error fetching prescription count:", error);
+    return 0;
+  }
 }
 
 export async function getPrescriptionsByPatient(patientId: string): Promise<Prescription[]> {

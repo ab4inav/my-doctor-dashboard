@@ -1,5 +1,7 @@
 import jsPDF from "jspdf";
 import type { Prescription, Invoice, Patient, Doctor, ConsultationNote } from "@shared/schema";
+import signatureImg from "@/assets/images/my-sign.png";
+import blueLogo from "@/assets/images/blue-logo.png";
 
 // Helper function to add logo and header to PDF
 const addLogoAndHeader = (doc: jsPDF, title: string) => {
@@ -7,24 +9,15 @@ const addLogoAndHeader = (doc: jsPDF, title: string) => {
   doc.setFillColor(34, 197, 94); // Medical green
   doc.rect(0, 0, doc.internal.pageSize.width, 35, 'F');
   
-  // Company logo/icon (simplified medical cross)
-  doc.setFillColor(255, 255, 255);
-  doc.circle(25, 17.5, 8);
-  doc.setFillColor(34, 197, 94);
-  doc.rect(21, 12, 8, 11);
-  doc.rect(17, 16, 16, 3);
-  
-  // Company name
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.text('MediPractice', 40, 20);
-  
-  // Tagline
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Healthcare Management System', 40, 28);
-  
+  // Company logo
+  const logoWidth = 90;
+  const logoProps = doc.getImageProperties(blueLogo);
+  const logoHeight = (logoProps.height * logoWidth) / logoProps.width;
+  const pageWidth = doc.internal.pageSize.width;
+  const headerHeight = 35;
+  const logoX = (pageWidth - logoWidth) / 2 + 5;
+  const logoY = headerHeight - logoHeight - 2;
+  doc.addImage(blueLogo, 'SVG', logoX, logoY, logoWidth, logoHeight);
   // Document title
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(16);
@@ -49,7 +42,7 @@ const addFooter = (doc: jsPDF) => {
   doc.setFontSize(9);
   doc.setTextColor(102, 102, 102);
   doc.text('UpchaarNepal Pvt Ltd | Kathmandu, Nepal', 20, pageHeight - 18);
-  doc.text('Phone: +977-01-5902597 | Email: help@upchaarnepal.com', 20, pageHeight - 13);
+  doc.text('Phone: +977-985-1343404 | Email: help@upchaarnepal.com', 20, pageHeight - 13);
   doc.text('Website: www.upchaarnepal.com', 20, pageHeight - 8);
   
   // Page number
@@ -77,6 +70,17 @@ const addInfoBox = (doc: jsPDF, title: string, content: string[], x: number, y: 
   content.forEach((line, index) => {
     doc.text(line, x + 3, y + 10 + (index * 5));
   });
+};
+  
+const addSignature = (doc: jsPDF) => {
+  const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
+  const imgWidth = 50;
+  const imgProps = doc.getImageProperties(signatureImg);
+  const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+  const x = pageWidth - imgWidth - 20;
+  const y = pageHeight - imgHeight - 30;
+  doc.addImage(signatureImg, 'PNG', x, y, imgWidth, imgHeight);
 };
 
 export function generatePrescriptionPDF(
@@ -164,6 +168,7 @@ export function generatePrescriptionPDF(
   
   // Add footer
   addFooter(doc);
+  addSignature(doc);
   
   // Download
   doc.save(`prescription-${prescription.prescriptionNumber}.pdf`);
@@ -279,6 +284,7 @@ export function generateInvoicePDF(
   
   // Add footer
   addFooter(doc);
+  addSignature(doc);
   
   // Download
   doc.save(`invoice-${invoice.invoiceNumber}.pdf`);
@@ -359,6 +365,7 @@ export function generateConsultationPDF(
   
   // Add footer
   addFooter(doc);
+  addSignature(doc);
   
   // Download
   doc.save(`consultation-${consultation.date.toISOString().split('T')[0]}.pdf`);

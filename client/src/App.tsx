@@ -9,7 +9,15 @@ import Dashboard from "@/pages/Dashboard";
 import Patients from "@/pages/Patients";
 import PatientProfile from "@/pages/PatientProfile";
 import NotFound from "@/pages/not-found";
-import { UserRound, BarChart3, Users, Calendar, FileText, DollarSign, Bell } from "lucide-react";
+import {
+  UserRound,
+  BarChart3,
+  Users,
+  Calendar,
+  FileText,
+  DollarSign,
+  Bell,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import logoSvg from "@/assets/green-logo.svg";
@@ -21,8 +29,8 @@ function Navigation() {
   const navItems = [
     { path: "/", icon: BarChart3, label: "Dashboard" },
     { path: "/patients", icon: Users, label: "Patients" },
-    { path: "/prescriptions", icon: FileText, label: "Prescriptions" },
-    { path: "/invoices", icon: DollarSign, label: "Invoices" },
+    // { path: "/prescriptions", icon: FileText, label: "Prescriptions" },
+    // { path: "/invoices", icon: DollarSign, label: "Invoices" },
   ];
 
   const handleLogout = async () => {
@@ -42,15 +50,23 @@ function Navigation() {
             <div className="flex items-center">
               <img src={logoSvg} alt="MediPractice Logo" className="h-10" />
             </div>
-            
+
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="p-2 text-medical-gray-500 hover:text-medical-gray-700">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2 text-medical-gray-500 hover:text-medical-gray-700"
+              >
                 <Bell className="h-5 w-5" />
               </Button>
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-medical-green rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    {doctor ? `${doctor.firstName.charAt(0)}${doctor.lastName.charAt(0)}` : "DR"}
+                    {doctor
+                      ? `${doctor.firstName.charAt(0)}${doctor.lastName.charAt(
+                          0
+                        )}`
+                      : "DR"}
                   </span>
                 </div>
                 <span className="text-sm font-medium text-medical-gray-700">
@@ -76,10 +92,12 @@ function Navigation() {
           <div className="p-6">
             <nav className="space-y-2">
               {navItems.map((item) => {
-                const isActive = location === item.path || 
+                const isActive =
+                  location === item.path ||
                   (item.path === "/" && location === "/") ||
-                  (item.path === "/patients" && location.startsWith("/patients"));
-                
+                  (item.path === "/patients" &&
+                    location.startsWith("/patients"));
+
                 return (
                   <Button
                     key={item.path}
