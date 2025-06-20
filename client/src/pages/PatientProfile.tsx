@@ -1,16 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
-import {
-  ArrowLeft,
-  Edit,
-  Download,
-  Plus,
-  TriangleAlert,
-  Pill,
-  Heart,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, Edit, Download, Plus, Heart, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -162,7 +153,11 @@ export default function PatientProfile() {
                 </div>
               </div>
             </div>
-            <Button variant="outline" className="border-medical-gray-300">
+            <Button
+              variant="outline"
+              className="border-medical-gray-300"
+              onClick={() => setShowEditPatientModal(true)}
+            >
               <Edit className="h-4 w-4 mr-2" />
               Edit Profile
             </Button>
@@ -182,22 +177,16 @@ export default function PatientProfile() {
                 Consultation Notes
               </TabsTrigger>
               <TabsTrigger
-                value="prescriptions"
-                className="border-b-2 border-transparent data-[state=active]:border-medical-blue data-[state=active]:text-medical-blue rounded-none px-6 py-4"
-              >
-                Prescriptions
-              </TabsTrigger>
-              <TabsTrigger
-                value="invoices"
-                className="border-b-2 border-transparent data-[state=active]:border-medical-blue data-[state=active]:text-medical-blue rounded-none px-6 py-4"
-              >
-                Invoices
-              </TabsTrigger>
-              <TabsTrigger
                 value="history"
                 className="border-b-2 border-transparent data-[state=active]:border-medical-blue data-[state=active]:text-medical-blue rounded-none px-6 py-4"
               >
                 Medical History
+              </TabsTrigger>
+              <TabsTrigger
+                value="prescriptions"
+                className="border-b-2 border-transparent data-[state=active]:border-medical-blue data-[state=active]:text-medical-blue rounded-none px-6 py-4"
+              >
+                Prescriptions
               </TabsTrigger>
             </TabsList>
           </div>
@@ -257,7 +246,7 @@ export default function PatientProfile() {
                           PDF
                         </Button>
                       </div>
-                      <RichTextRenderer 
+                      <RichTextRenderer
                         content={note.content}
                         className="mt-3"
                       />
@@ -559,6 +548,12 @@ export default function PatientProfile() {
         onClose={() => setShowInvoiceModal(false)}
         patientId={patientId}
         onInvoiceCreated={refetchInvoices}
+      />
+      <EditPatientModal
+        open={showEditPatientModal}
+        onClose={() => setShowEditPatientModal(false)}
+        patient={patient}
+        onPatientUpdated={refetchPatient}
       />
     </div>
   );

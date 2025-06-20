@@ -30,7 +30,6 @@ function Navigation() {
     { path: "/", icon: BarChart3, label: "Dashboard" },
     { path: "/patients", icon: Users, label: "Patients" },
     // { path: "/prescriptions", icon: FileText, label: "Prescriptions" },
-    // { path: "/invoices", icon: DollarSign, label: "Invoices" },
   ];
 
   const handleLogout = async () => {

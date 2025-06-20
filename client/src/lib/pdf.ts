@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import type { Prescription, Invoice, Patient, Doctor, ConsultationNote } from "@shared/schema";
-import signatureImg from "@/assets/images/my-sign.png";
+import signatureImg from "@/assets/images/stamp.png";
 import blueLogo from "@/assets/images/blue-logo.png";
 
 // Helper function to add logo and header to PDF
@@ -41,8 +41,8 @@ const addFooter = (doc: jsPDF) => {
   // Footer text
   doc.setFontSize(9);
   doc.setTextColor(102, 102, 102);
-  doc.text('UpchaarNepal Pvt Ltd | Kathmandu, Nepal', 20, pageHeight - 18);
-  doc.text('Phone: +977-985-1343404 | Email: help@upchaarnepal.com', 20, pageHeight - 13);
+  doc.text('UpachaarNepal Pvt Ltd | Kathmandu, Nepal', 20, pageHeight - 18);
+  doc.text('Phone: +977-980-2348088 | Email: support@upchaarnepal.com', 20, pageHeight - 13);
   doc.text('Website: www.upchaarnepal.com', 20, pageHeight - 8);
   
   // Page number
@@ -100,7 +100,7 @@ export function generatePrescriptionPDF(
     `Dr. ${doctor.firstName} ${doctor.lastName}`,
     `Prescription #: ${prescription.prescriptionNumber}`,
     `Date: ${prescription.date.toLocaleDateString()}`,
-    `Time: ${prescription.date.toLocaleTimeString()}`
+    // `Time: ${prescription.date.toLocaleTimeString()}`
   ], 20, yPosition, 85);
   
   // Patient Information

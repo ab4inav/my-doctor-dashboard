@@ -2,11 +2,22 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { insertPatientSchema, type InsertPatient } from "@shared/schema";
@@ -19,7 +30,11 @@ interface AddPatientModalProps {
   onPatientAdded: () => void;
 }
 
-export function AddPatientModal({ open, onClose, onPatientAdded }: AddPatientModalProps) {
+export function AddPatientModal({
+  open,
+  onClose,
+  onPatientAdded,
+}: AddPatientModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { doctor } = useAuth();
   const { toast } = useToast();
@@ -70,7 +85,8 @@ export function AddPatientModal({ open, onClose, onPatientAdded }: AddPatientMod
       console.error("Error adding patient:", error);
       toast({
         title: "Error",
-        description: "Failed to add patient. Please ensure Firestore is enabled in Firebase Console.",
+        description:
+          "Failed to add patient. Please ensure Firestore is enabled in Firebase Console.",
         variant: "destructive",
       });
     } finally {
@@ -138,7 +154,9 @@ export function AddPatientModal({ open, onClose, onPatientAdded }: AddPatientMod
               <Label htmlFor="gender">Gender *</Label>
               <Select
                 value={form.watch("gender")}
-                onValueChange={(value) => form.setValue("gender", value as "male" | "female" | "other")}
+                onValueChange={(value) =>
+                  form.setValue("gender", value as "male" | "female" | "other")
+                }
               >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select Gender" />
@@ -154,7 +172,9 @@ export function AddPatientModal({ open, onClose, onPatientAdded }: AddPatientMod
               <Label htmlFor="bloodType">Blood Type</Label>
               <Select
                 value={form.watch("bloodType") || ""}
-                onValueChange={(value) => form.setValue("bloodType", value as any)}
+                onValueChange={(value) =>
+                  form.setValue("bloodType", value as any)
+                }
               >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select Blood Type" />
@@ -189,7 +209,7 @@ export function AddPatientModal({ open, onClose, onPatientAdded }: AddPatientMod
               )}
             </div>
             <div>
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">Email Address *</Label>
               <Input
                 id="email"
                 type="email"
@@ -236,11 +256,7 @@ export function AddPatientModal({ open, onClose, onPatientAdded }: AddPatientMod
           </div>
 
           <div className="flex justify-end space-x-4 pt-4 border-t border-medical-gray-200">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-            >
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button
